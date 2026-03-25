@@ -1,58 +1,50 @@
 'use client';
 import { useState, useEffect } from 'react';
 import DropZone from '../../components/DropZone';
-import DownloadButton from '../../components/DownloadButton';
 import AdUnit from '../../components/AdUnit';
 import BeforeAfter from '../../components/BeforeAfter';
 import { useToast } from '../../components/Toast';
 
+const BRAND = '#7c3aed';
+const LIGHT  = '#f5f3ff';
+
 export default function RemoveBgPage() {
   const { toast } = useToast();
-  const [result, setResult]         = useState<string | null>(null);
-  const [originalUrl, setOriginalUrl] = useState<string | null>(null);
-  const [loading, setLoading]       = useState(false);
-  const [progress, setProgress]     = useState(0);
+  const [result, setResult]             = useState<string | null>(null);
+  const [originalUrl, setOriginalUrl]   = useState<string | null>(null);
+  const [loading, setLoading]           = useState(false);
+  const [progress, setProgress]         = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
-  const [origName, setOrigName]     = useState('image.png');
+  const [origName, setOrigName]         = useState('image.png');
 
-  // Revoke object URLs when they change to prevent memory leaks
   useEffect(() => () => { if (originalUrl) URL.revokeObjectURL(originalUrl); }, [originalUrl]);
   useEffect(() => () => { if (result) URL.revokeObjectURL(result); }, [result]);
 
   const handleFile = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast('Please upload an image file.', 'error');
-      return;
-    }
-
+    if (!file.type.startsWith('image/')) { toast('Please upload an image file.', 'error'); return; }
     setOrigName(file.name);
     setResult(null);
     setOriginalUrl(URL.createObjectURL(file));
     setLoading(true);
     setProgress(5);
     setProgressLabel('Loading AI model…');
-
     try {
       const { removeBackground } = await import('@imgly/background-removal');
       setProgress(30);
       setProgressLabel('Analysing image…');
-
       const blob = await removeBackground(file, {
         progress: (key: string, current: number, total: number) => {
           if (total > 0) {
-            const pct = Math.round((current / total) * 60) + 30;
-            setProgress(Math.min(90, pct));
-            if (key.includes('fetch')) setProgressLabel('Downloading AI model…');
-            else setProgressLabel('Removing background…');
+            setProgress(Math.min(90, Math.round((current / total) * 60) + 30));
+            setProgressLabel(key.includes('fetch') ? 'Downloading AI model…' : 'Removing background…');
           }
         },
       });
-
       setProgress(100);
       setResult(URL.createObjectURL(blob));
-      toast('Background removed successfully!', 'success');
+      toast('Background removed!', 'success');
     } catch (e) {
-      toast('Background removal failed. Try a clearer image.', 'error');
+      toast('Removal failed. Try a clearer image.', 'error');
       console.error(e);
     } finally {
       setLoading(false);
@@ -62,77 +54,86 @@ export default function RemoveBgPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2">Remove Background from Image Free — No Upload Limit</h1>
-      <p className="text-gray-500 mb-6">AI-powered background removal that runs entirely in your browser. Private, free, no limits.</p>
-
-      <AdUnit slot="rmbg-top" />
-
-      <DropZone onFile={handleFile} label="Drop image here to remove background" />
-
-      {loading && (
-        <div className="mt-6 space-y-2">
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>{progressLabel}</span>
-            <span className="font-medium text-blue-600">{progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-            <div
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-xs text-gray-400">First run downloads the AI model (~40MB) and caches it. Subsequent uses are instant.</p>
-        </div>
-      )}
-
-      {originalUrl && result && (
-        <div className="mt-8 space-y-6">
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between gap-4">
-            <span className="text-sm font-medium text-green-800">Background removed — transparent PNG ready</span>
-            <DownloadButton
-              url={result}
-              filename={`no-bg_${origName.replace(/\.[^.]+$/, '')}.png`}
-              label="Download PNG"
-            />
-          </div>
-
-          <BeforeAfter
-            before={originalUrl}
-            after={result}
-            beforeLabel="Original"
-            afterLabel="Background Removed"
-          />
-
-          {/* Transparent preview with checkerboard */}
-          <div>
-            <p className="text-sm font-medium text-gray-600 mb-2">Transparency preview:</p>
-            <div className="checkerboard inline-block rounded-xl overflow-hidden">
-              <img src={result} alt="Background removed" className="max-h-48" />
+    <div>
+      <div style={{ background: `linear-gradient(135deg, ${LIGHT} 0%, #fff 100%)`, borderBottom: '1px solid #ddd6fe', padding: '2.5rem 1.5rem 2rem' }}>
+        <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginBottom: '.75rem' }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: BRAND, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: '1.25rem' }}>✂️</span>
+            </div>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-.025em' }}>Background Remover</h1>
+              <p style={{ margin: 0, fontSize: '.85rem', color: '#64748b' }}>Free · AI-powered · Runs in browser</p>
             </div>
           </div>
-        </div>
-      )}
-
-      <AdUnit slot="rmbg-mid" format="rectangle" />
-
-      <div className="mt-12 space-y-6 text-sm text-gray-600">
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-2">How to remove a background</h2>
-          <p>Upload any photo. The AI model (ONNX/WebAssembly) runs entirely in your browser and automatically detects and removes the background. The result is a transparent PNG you can use anywhere.</p>
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-3">FAQ</h2>
-          <div className="space-y-2">
-            <p><strong>Is my image uploaded?</strong> No. The AI runs in your browser — your image never leaves your device.</p>
-            <p><strong>Why does it take longer the first time?</strong> The AI model (~40MB) is downloaded once and cached in your browser. After that it is instant.</p>
-            <p><strong>What works best?</strong> Photos with clear subjects (people, products, animals) on distinct backgrounds.</p>
-            <p><strong>What output format?</strong> PNG with transparent background.</p>
-          </div>
+          <p style={{ color: '#475569', fontSize: '1rem', lineHeight: 1.65, margin: 0 }}>
+            Remove backgrounds instantly with AI that runs entirely in your browser. No upload, no server, 100% private. Download transparent PNG.
+          </p>
         </div>
       </div>
 
-      <AdUnit slot="rmbg-bottom" />
+      <div style={{ maxWidth: '48rem', margin: '2rem auto', padding: '0 1.5rem' }}>
+        <AdUnit slot="rmbg-top" />
+
+        <DropZone onFile={handleFile} label="Drop image here to remove background" />
+
+        {loading && (
+          <div style={{ marginTop: '1.5rem', background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: '1.25rem', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.5rem' }}>
+              <span style={{ fontSize: '.875rem', color: '#374151', fontWeight: 500 }}>{progressLabel}</span>
+              <span style={{ fontSize: '.875rem', fontWeight: 700, color: BRAND }}>{progress}%</span>
+            </div>
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${BRAND}, #6d28d9)` }} />
+            </div>
+            <p style={{ fontSize: '.78rem', color: '#94a3b8', marginTop: '.75rem' }}>
+              ℹ️ First run downloads the AI model (~40MB) and caches it. Subsequent uses are instant.
+            </p>
+          </div>
+        )}
+
+        {originalUrl && result && (
+          <div style={{ marginTop: '1.75rem' }}>
+            <div className="result-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <div style={{ fontWeight: 700, color: '#059669', marginBottom: '.2rem' }}>✓ Background removed</div>
+                <div style={{ fontSize: '.825rem', color: '#64748b' }}>Transparent PNG ready to download</div>
+              </div>
+              <a href={result} download={`no-bg_${origName.replace(/\.[^.]+$/, '')}.png`}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '.4rem', background: `linear-gradient(135deg,${BRAND},#6d28d9)`, color: '#fff', fontWeight: 600, fontSize: '.875rem', padding: '.6rem 1.25rem', borderRadius: '.75rem', textDecoration: 'none', boxShadow: `0 2px 8px rgba(124,58,237,.35)` }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PNG
+              </a>
+            </div>
+            <BeforeAfter before={originalUrl} after={result} beforeLabel="Original" afterLabel="Background Removed" />
+            <div style={{ marginTop: '1.25rem' }}>
+              <p style={{ fontSize: '.85rem', fontWeight: 600, color: '#64748b', marginBottom: '.5rem' }}>Transparency preview:</p>
+              <div className="checkerboard" style={{ display: 'inline-block', borderRadius: '1rem', overflow: 'hidden' }}>
+                <img src={result} alt="No background" style={{ maxHeight: 180, display: 'block' }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style={{ marginTop: '2rem' }}><AdUnit slot="rmbg-mid" format="rectangle" /></div>
+
+        <div style={{ marginTop: '3rem', background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: '1.25rem', padding: '1.5rem' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: '1rem' }}>Frequently Asked Questions</h2>
+          {[
+            ['Is my image uploaded?', 'No. The AI runs entirely in your browser using WebAssembly — your image never leaves your device.'],
+            ['Why does the first run take longer?', 'The AI model (~40MB) is downloaded once and cached in your browser. After that, removal is instant.'],
+            ['What works best?', 'Photos with clear subjects (people, products, animals) on distinct backgrounds.'],
+            ['What is the output format?', 'PNG with a transparent background.'],
+          ].map(([q, a]) => (
+            <div key={q} className="faq-item">
+              <div style={{ fontWeight: 600, color: '#374151', marginBottom: '.3rem', fontSize: '.9rem' }}>{q}</div>
+              <div style={{ color: '#64748b', fontSize: '.875rem' }}>{a}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: '2rem' }}><AdUnit slot="rmbg-bottom" /></div>
+      </div>
     </div>
   );
 }

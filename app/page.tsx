@@ -4,162 +4,288 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'ImageToolbox — Free Online Image Tools',
   description: 'Free browser-based tools to compress images, remove backgrounds, resize photos, and generate QR codes. No upload, no server, 100% private.',
-  openGraph: {
-    title: 'ImageToolbox — Free Online Image Tools',
-    description: 'Compress, resize, remove backgrounds, generate QR codes — free, browser-based, no upload.',
-    url: 'https://imagetoolbox.vercel.app',
-  },
 };
 
 const tools = [
   {
     href: '/compress',
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-      </svg>
-    ),
+    icon: '🗜️',
     title: 'Image Compressor',
-    desc: 'Reduce file size up to 90% without visible quality loss. JPEG, PNG, WebP.',
+    desc: 'Reduce file size up to 90% without visible quality loss.',
     badge: '~30M searches/mo',
-    color: 'blue',
+    from: '#2563eb', to: '#1d4ed8',
+    light: '#eff6ff', border: '#bfdbfe',
+    tag: 'Most Popular',
   },
   {
     href: '/remove-background',
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
-      </svg>
-    ),
+    icon: '✂️',
     title: 'Background Remover',
-    desc: 'AI removes backgrounds in seconds — runs entirely in your browser, no server.',
+    desc: 'AI removes backgrounds in seconds — runs entirely in your browser.',
     badge: '~20M searches/mo',
-    color: 'purple',
+    from: '#7c3aed', to: '#6d28d9',
+    light: '#f5f3ff', border: '#ddd6fe',
+    tag: 'AI Powered',
   },
   {
     href: '/resize',
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-      </svg>
-    ),
+    icon: '📐',
     title: 'Image Resizer',
-    desc: 'Set exact pixel dimensions with aspect-ratio lock and social media presets.',
+    desc: 'Set exact pixel dimensions with aspect-ratio lock and social presets.',
     badge: '~15M searches/mo',
-    color: 'green',
+    from: '#059669', to: '#047857',
+    light: '#ecfdf5', border: '#a7f3d0',
+    tag: 'Social Presets',
   },
   {
     href: '/qr-code-generator',
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-      </svg>
-    ),
+    icon: '📱',
     title: 'QR Code Generator',
-    desc: 'Custom QR codes with colors, backgrounds, dot styles — download PNG or SVG.',
+    desc: 'Custom QR codes with colors, dot styles — download PNG or SVG.',
     badge: '~10M searches/mo',
-    color: 'orange',
+    from: '#d97706', to: '#b45309',
+    light: '#fffbeb', border: '#fcd34d',
+    tag: 'SVG Export',
   },
 ];
 
-const colorMap: Record<string, string> = {
-  blue: 'bg-blue-50 text-blue-600 border-blue-100 hover:border-blue-300',
-  purple: 'bg-purple-50 text-purple-600 border-purple-100 hover:border-purple-300',
-  green: 'bg-green-50 text-green-600 border-green-100 hover:border-green-300',
-  orange: 'bg-orange-50 text-orange-600 border-orange-100 hover:border-orange-300',
-};
-const iconColorMap: Record<string, string> = {
-  blue: 'bg-blue-100 text-blue-600',
-  purple: 'bg-purple-100 text-purple-600',
-  green: 'bg-green-100 text-green-600',
-  orange: 'bg-orange-100 text-orange-600',
-};
+const stats = [
+  { value: '75M+', label: 'Monthly searches targeted' },
+  { value: '0 KB', label: 'Data uploaded to server' },
+  { value: '4',    label: 'Free tools available' },
+  { value: '100%', label: 'Browser-based processing' },
+];
 
-const trustBadges = [
-  { label: '100% Free', sub: 'No hidden fees, no limits' },
-  { label: 'No Upload', sub: 'Everything stays in browser' },
-  { label: 'No Account', sub: 'Use without signing up' },
-  { label: 'Open Source', sub: 'MIT licensed packages' },
+const features = [
+  { icon: '🔒', title: 'Completely Private', desc: 'Your images never leave your device. All processing happens locally in your browser using WebAssembly.' },
+  { icon: '⚡', title: 'Instant Results',   desc: 'No waiting for server uploads or processing. Results appear in seconds thanks to client-side rendering.' },
+  { icon: '🆓', title: 'Always Free',        desc: 'No account, no credit card, no watermarks. All 4 tools are free forever with no usage limits.' },
+  { icon: '📱', title: 'Works Everywhere',  desc: 'Desktop, tablet, or mobile — all tools are fully responsive and work on any modern browser.' },
 ];
 
 export default function HomePage() {
   return (
     <div>
-      {/* Hero */}
-      <div className="text-center py-16 px-4">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-sm font-medium px-3 py-1 rounded-full mb-6">
-          <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-          100% Browser-Based — No Server, No Upload
+      {/* ── Hero ────────────────────────────────────────────────── */}
+      <section style={{
+        background: 'linear-gradient(160deg, #0f172a 0%, #1e1b4b 45%, #0f172a 100%)',
+        padding: '5rem 1.5rem 4rem',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Glow blobs */}
+        <div style={{ position: 'absolute', top: '10%', left: '20%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(99,102,241,.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '5%', right: '15%', width: 250, height: 250, background: 'radial-gradient(circle, rgba(37,99,235,.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        <div style={{ position: 'relative', maxWidth: '52rem', margin: '0 auto' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '.5rem',
+            background: 'rgba(99,102,241,.15)', border: '1px solid rgba(99,102,241,.3)',
+            color: '#a5b4fc', borderRadius: 9999, padding: '.35rem 1rem',
+            fontSize: '.8rem', fontWeight: 600, marginBottom: '1.75rem',
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8', display: 'inline-block' }} />
+            100% Browser-Based · No Upload · No Account
+          </div>
+
+          <h1 style={{
+            fontSize: 'clamp(2.2rem, 5vw, 3.6rem)',
+            fontWeight: 800,
+            lineHeight: 1.12,
+            letterSpacing: '-.03em',
+            color: '#fff',
+            marginBottom: '1.25rem',
+          }}>
+            Free Image Tools That<br />
+            <span style={{
+              background: 'linear-gradient(135deg, #818cf8, #60a5fa)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}>Respect Your Privacy</span>
+          </h1>
+
+          <p style={{ fontSize: '1.15rem', color: 'rgba(255,255,255,.55)', maxWidth: '36rem', margin: '0 auto 2.5rem', lineHeight: 1.65 }}>
+            Compress, resize, remove backgrounds, and generate QR codes — everything runs
+            in your browser. Your images never leave your device.
+          </p>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+            <Link href="/compress" style={{ textDecoration: 'none' }}>
+              <span className="btn-primary" style={{ fontSize: '1rem', padding: '.75rem 2rem' }}>
+                Start for Free →
+              </span>
+            </Link>
+            <Link href="#tools" style={{ textDecoration: 'none' }}>
+              <span className="btn-ghost" style={{
+                color: 'rgba(255,255,255,.6)', borderColor: 'rgba(255,255,255,.15)',
+                background: 'rgba(255,255,255,.05)', fontSize: '1rem', padding: '.75rem 2rem',
+              }}>
+                View All Tools
+              </span>
+            </Link>
+          </div>
         </div>
-        <h1 className="text-5xl font-bold tracking-tight mb-4 text-gray-900">
-          Free Image Tools<br />
-          <span className="text-blue-600">That Respect Your Privacy</span>
-        </h1>
-        <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-8">
-          Compress, resize, remove backgrounds, and generate QR codes — everything runs
-          in your browser. Your images never leave your device.
-        </p>
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {trustBadges.map(b => (
-            <div key={b.label} className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
-              <svg className="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              <div className="text-left">
-                <div className="text-sm font-semibold text-gray-800">{b.label}</div>
-                <div className="text-xs text-gray-500">{b.sub}</div>
-              </div>
+      </section>
+
+      {/* ── Stats bar ───────────────────────────────────────────── */}
+      <section style={{
+        background: '#fff',
+        borderBottom: '1px solid #e2e8f0',
+        padding: '1.5rem 1.5rem',
+      }}>
+        <div style={{
+          maxWidth: '72rem', margin: '0 auto',
+          display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2.5rem',
+        }}>
+          {stats.map(s => (
+            <div key={s.label} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-.03em', color: '#4f46e5' }}>{s.value}</div>
+              <div style={{ fontSize: '.78rem', color: '#94a3b8', fontWeight: 500, marginTop: '.15rem' }}>{s.label}</div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Tools Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {tools.map(t => (
-          <Link
-            key={t.href}
-            href={t.href}
-            className={`border-2 rounded-2xl p-6 transition-all group bg-white hover:shadow-lg ${colorMap[t.color]}`}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-xl ${iconColorMap[t.color]}`}>
-                {t.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-lg font-bold text-gray-900 group-hover:text-current">{t.title}</h2>
-                  <span className="hidden sm:inline text-xs text-gray-400 font-normal">{t.badge}</span>
+      {/* ── Tool cards ──────────────────────────────────────────── */}
+      <section id="tools" style={{ maxWidth: '72rem', margin: '4rem auto', padding: '0 1.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div className="section-label">Tools</div>
+          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-.025em', color: '#0f172a', marginTop: '.5rem' }}>
+            Everything you need for images
+          </h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+          {tools.map(t => (
+            <Link key={t.href} href={t.href} style={{ textDecoration: 'none' }}>
+              <div className="tool-card" style={{
+                background: '#fff',
+                border: `1.5px solid ${t.border}`,
+                borderRadius: '1.25rem',
+                padding: '1.5rem',
+                height: '100%',
+                cursor: 'pointer',
+                position: 'relative',
+                overflow: 'hidden',
+              }}>
+                {/* Top accent bar */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${t.from}, ${t.to})`, borderRadius: '1.25rem 1.25rem 0 0' }} />
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                  {/* Icon box */}
+                  <div style={{
+                    width: 48, height: 48, borderRadius: '12px', flexShrink: 0,
+                    background: t.light,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.5rem',
+                  }}>
+                    {t.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', marginBottom: '.3rem' }}>
+                      <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a', margin: 0 }}>{t.title}</h3>
+                      <span style={{
+                        fontSize: '.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em',
+                        background: t.light, color: t.from, padding: '.2rem .5rem', borderRadius: 9999,
+                        border: `1px solid ${t.border}`,
+                      }}>{t.tag}</span>
+                    </div>
+                    <p style={{ fontSize: '.875rem', color: '#64748b', lineHeight: 1.55, margin: 0 }}>{t.desc}</p>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 4 }}>
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
                 </div>
-                <p className="text-gray-500 text-sm leading-relaxed">{t.desc}</p>
-              </div>
-              <svg className="w-5 h-5 text-gray-300 group-hover:text-current transition-colors shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-        ))}
-      </div>
 
-      {/* How it works */}
-      <div className="mt-20 text-center">
-        <h2 className="text-2xl font-bold mb-10 text-gray-900">How It Works</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-          {[
-            { step: '1', title: 'Upload', desc: 'Drag & drop or click to select your image. Stays 100% in your browser.' },
-            { step: '2', title: 'Process', desc: 'Our tools run client-side using WebAssembly and Web APIs — fast and private.' },
-            { step: '3', title: 'Download', desc: 'Click download to save the result. No account, no email, no waiting.' },
-          ].map(s => (
-            <div key={s.step} className="flex flex-col items-center">
-              <div className="w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg flex items-center justify-center mb-4">
-                {s.step}
+                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: `1px solid ${t.border}` }}>
+                  <span style={{ fontSize: '.78rem', color: t.from, fontWeight: 600 }}>{t.badge}</span>
+                </div>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{s.title}</h3>
-              <p className="text-gray-500 text-sm">{s.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Features ────────────────────────────────────────────── */}
+      <section style={{ background: '#fff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', padding: '4rem 1.5rem' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <div className="section-label">Why ImageToolbox</div>
+            <h2 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-.025em', color: '#0f172a', marginTop: '.5rem' }}>
+              Built for privacy and speed
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2rem' }}>
+            {features.map(f => (
+              <div key={f.title}>
+                <div style={{ fontSize: '2rem', marginBottom: '.75rem' }}>{f.icon}</div>
+                <h3 style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a', marginBottom: '.4rem' }}>{f.title}</h3>
+                <p style={{ fontSize: '.875rem', color: '#64748b', lineHeight: 1.65 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── How it works ────────────────────────────────────────── */}
+      <section style={{ maxWidth: '72rem', margin: '4rem auto', padding: '0 1.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div className="section-label">Process</div>
+          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-.025em', color: '#0f172a', marginTop: '.5rem' }}>
+            Three steps. That's it.
+          </h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2.5rem' }}>
+          {[
+            { n: '01', title: 'Upload', desc: 'Drag & drop or click to select. Stays 100% in your browser.' },
+            { n: '02', title: 'Process', desc: 'WebAssembly runs the tool client-side — fast and private.' },
+            { n: '03', title: 'Download', desc: 'Click download. No account, no email, no watermarks.' },
+          ].map(s => (
+            <div key={s.n} style={{ textAlign: 'center' }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%',
+                background: 'linear-gradient(135deg,#4f46e5,#2563eb)',
+                color: '#fff', fontWeight: 800, fontSize: '1rem',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 1rem', boxShadow: '0 4px 14px rgba(79,70,229,.35)',
+              }}>{s.n}</div>
+              <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '.4rem' }}>{s.title}</h3>
+              <p style={{ fontSize: '.875rem', color: '#64748b', lineHeight: 1.65 }}>{s.desc}</p>
             </div>
           ))}
         </div>
-      </div>
+      </section>
+
+      {/* ── CTA banner ──────────────────────────────────────────── */}
+      <section style={{ maxWidth: '72rem', margin: '0 auto 4rem', padding: '0 1.5rem' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #4f46e5, #2563eb)',
+          borderRadius: '1.5rem',
+          padding: '3rem 2rem',
+          textAlign: 'center',
+          boxShadow: '0 16px 48px rgba(79,70,229,.3)',
+        }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', marginBottom: '.75rem' }}>Ready to try it?</h2>
+          <p style={{ color: 'rgba(255,255,255,.7)', marginBottom: '1.75rem', fontSize: '1rem' }}>
+            No signup. No upload. Just pick a tool and go.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {tools.map(t => (
+              <Link key={t.href} href={t.href} style={{ textDecoration: 'none' }}>
+                <span className="cta-link" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '.4rem',
+                  background: 'rgba(255,255,255,.15)', color: '#fff',
+                  border: '1.5px solid rgba(255,255,255,.25)',
+                  padding: '.5rem 1.1rem', borderRadius: '.75rem',
+                  fontSize: '.875rem', fontWeight: 600,
+                }}>
+                  {t.icon} {t.title}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
