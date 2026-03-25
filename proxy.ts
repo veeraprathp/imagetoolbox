@@ -12,12 +12,15 @@ export function proxy(request: NextRequest) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
+      // Next.js requires unsafe-eval in dev; unsafe-inline for Tailwind styles
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://pagead2.googlesyndication.com https://www.googletagservices.com blob:",
+      // WASM workers need blob: and 'self'
       "worker-src 'self' blob:",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self'",
-      "connect-src 'self' https://cdn.img.ly blob:",
+      // @imgly/background-removal fetches ONNX models from multiple CDN origins
+      "connect-src 'self' https://cdn.img.ly https://bundle.imgly.app https://huggingface.co https://cdn-lfs.huggingface.co blob: data:",
       "frame-ancestors 'none'",
     ].join('; ')
   );

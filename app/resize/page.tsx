@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Pica from 'pica';
 import DropZone from '../../components/DropZone';
 import DownloadButton from '../../components/DownloadButton';
@@ -8,35 +8,57 @@ import BeforeAfter from '../../components/BeforeAfter';
 import { useToast } from '../../components/Toast';
 
 const PRESETS = [
-  { label: 'Instagram Post', w: 1080, h: 1080 },
-  { label: 'Instagram Story', w: 1080, h: 1920 },
-  { label: 'Twitter/X Post', w: 1200, h: 675 },
-  { label: 'Facebook Cover', w: 820, h: 312 },
-  { label: 'LinkedIn Post', w: 1200, h: 627 },
-  { label: 'YouTube Thumbnail', w: 1280, h: 720 },
+  { label: 'Instagram Post',    w: 1080, h: 1080 },
+  { label: 'Instagram Story',   w: 1080, h: 1920 },
+  { label: 'Twitter/X Post',    w: 1200, h: 675  },
+  { label: 'Facebook Cover',    w: 820,  h: 312  },
+  { label: 'LinkedIn Post',     w: 1200, h: 627  },
+  { label: 'YouTube Thumbnail', w: 1280, h: 720  },
   { label: 'A4 Print (150dpi)', w: 1240, h: 1754 },
 ];
 
 export default function ResizePage() {
   const { toast } = useToast();
-  const [width, setWidth] = useState(800);
-  const [height, setHeight] = useState(600);
-  const [lockRatio, setLockRatio] = useState(true);
+  const [width, setWidth]           = useState(800);
+  const [height, setHeight]         = useState(600);
+  const [lockRatio, setLockRatio]   = useState(true);
   const [originalRatio, setOriginalRatio] = useState<number | null>(null);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult]         = useState<string | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [origName, setOrigName] = useState('image.png');
+  const [loading, setLoading]       = useState(false);
+  const [origName, setOrigName]     = useState('image.png');
+
+  // Keep latest width/height/lockRatio in refs so handleFile never captures stale state
+  const widthRef     = useRef(width);
+  const heightRef    = useRef(height);
+  const lockRatioRef = useRef(lockRatio);
+  useEffect(() => { widthRef.current = width; }, [width]);
+  useEffect(() => { heightRef.current = height; }, [height]);
+  useEffect(() => { lockRatioRef.current = lockRatio; }, [lockRatio]);
+
+  // Revoke previous object URLs to prevent memory leaks
+  useEffect(() => () => { if (originalUrl) URL.revokeObjectURL(originalUrl); }, [originalUrl]);
+  useEffect(() => () => { if (result) URL.revokeObjectURL(result); }, [result]);
 
   const handleWidthChange = useCallback((val: number) => {
     setWidth(val);
-    if (lockRatio && originalRatio) setHeight(Math.round(val / originalRatio));
-  }, [lockRatio, originalRatio]);
+    widthRef.current = val;
+    if (lockRatioRef.current && originalRatio) {
+      const newH = Math.round(val / originalRatio);
+      setHeight(newH);
+      heightRef.current = newH;
+    }
+  }, [originalRatio]);
 
   const handleHeightChange = useCallback((val: number) => {
     setHeight(val);
-    if (lockRatio && originalRatio) setWidth(Math.round(val * originalRatio));
-  }, [lockRatio, originalRatio]);
+    heightRef.current = val;
+    if (lockRatioRef.current && originalRatio) {
+      const newW = Math.round(val * originalRatio);
+      setWidth(newW);
+      widthRef.current = newW;
+    }
+  }, [originalRatio]);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -46,40 +68,52 @@ export default function ResizePage() {
 
     setOrigName(file.name);
     setResult(null);
-    const url = URL.createObjectURL(file);
-    setOriginalUrl(url);
+    setOriginalUrl(URL.createObjectURL(file));
 
     const img = new Image();
-    img.src = url;
-    await new Promise(r => { img.onload = r; });
+    img.src = URL.createObjectURL(file);
+    await new Promise<void>(r => { img.onload = () => r(); });
+
     const ratio = img.naturalWidth / img.naturalHeight;
     setOriginalRatio(ratio);
-    if (lockRatio) setHeight(Math.round(width / ratio));
+
+    // Calculate the actual output height — read from ref to get latest value, then
+    // apply aspect ratio lock locally so the canvas uses the correct dimensions immediately
+    const targetW = widthRef.current;
+    let targetH = heightRef.current;
+    if (lockRatioRef.current) {
+      targetH = Math.round(targetW / ratio);
+      setHeight(targetH);
+      heightRef.current = targetH;
+    }
 
     setLoading(true);
     try {
       const pica = new Pica();
       const from = document.createElement('canvas');
-      from.width = img.naturalWidth;
+      from.width  = img.naturalWidth;
       from.height = img.naturalHeight;
       from.getContext('2d')!.drawImage(img, 0, 0);
+
       const to = document.createElement('canvas');
-      to.width = width;
-      to.height = height;
+      to.width  = targetW;
+      to.height = targetH;
       await pica.resize(from, to);
+
       setResult(to.toDataURL('image/png'));
-      toast(`Resized to ${width}×${height}px`, 'success');
+      toast(`Resized to ${targetW}×${targetH}px`, 'success');
     } catch {
       toast('Resize failed. Try a different image.', 'error');
     } finally {
       setLoading(false);
+      URL.revokeObjectURL(img.src);
     }
   };
 
   const applyPreset = (w: number, h: number) => {
-    setWidth(w);
-    setHeight(h);
-    setLockRatio(false);
+    setWidth(w);  widthRef.current = w;
+    setHeight(h); heightRef.current = h;
+    setLockRatio(false); lockRatioRef.current = false;
   };
 
   return (
@@ -100,8 +134,9 @@ export default function ResizePage() {
               className="border border-gray-300 rounded-lg px-3 py-2 w-28 focus:border-blue-500 focus:outline-none"
             />
           </div>
+
           <button
-            onClick={() => setLockRatio(v => !v)}
+            onClick={() => { setLockRatio(v => { lockRatioRef.current = !v; return !v; }); }}
             className={`mb-0.5 p-2 rounded-lg border transition-colors ${lockRatio ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-300'}`}
             title={lockRatio ? 'Unlock aspect ratio' : 'Lock aspect ratio'}
           >
@@ -112,6 +147,7 @@ export default function ResizePage() {
               }
             </svg>
           </button>
+
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-700">Height (px)</label>
             <input
@@ -149,7 +185,7 @@ export default function ResizePage() {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <span className="font-medium">Resizing...</span>
+          <span className="font-medium">Resizing…</span>
         </div>
       )}
 
@@ -173,7 +209,7 @@ export default function ResizePage() {
         <div>
           <h2 className="text-lg font-bold text-gray-900 mb-3">FAQ</h2>
           <div className="space-y-2">
-            <p><strong>What does aspect ratio lock do?</strong> When locked, changing width automatically updates height to keep the original proportions.</p>
+            <p><strong>What does aspect ratio lock do?</strong> When locked, changing width automatically updates height to maintain the original proportions, and vice versa.</p>
             <p><strong>Is my image uploaded?</strong> No. Resize runs in your browser via Pica (WebGL/Canvas).</p>
             <p><strong>What is the output format?</strong> PNG. For smaller files, use our Image Compressor after resizing.</p>
           </div>

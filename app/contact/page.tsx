@@ -1,9 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { useToast } from '../../components/Toast';
-import type { Metadata } from 'next';
-
-// Note: metadata export won't work in 'use client' component — moved to separate file below
 
 export default function ContactPage() {
   const { toast } = useToast();

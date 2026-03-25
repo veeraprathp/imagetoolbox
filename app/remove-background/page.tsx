@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DropZone from '../../components/DropZone';
 import DownloadButton from '../../components/DownloadButton';
 import AdUnit from '../../components/AdUnit';
@@ -8,12 +8,16 @@ import { useToast } from '../../components/Toast';
 
 export default function RemoveBgPage() {
   const { toast } = useToast();
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult]         = useState<string | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [loading, setLoading]       = useState(false);
+  const [progress, setProgress]     = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
-  const [origName, setOrigName] = useState('image.png');
+  const [origName, setOrigName]     = useState('image.png');
+
+  // Revoke object URLs when they change to prevent memory leaks
+  useEffect(() => () => { if (originalUrl) URL.revokeObjectURL(originalUrl); }, [originalUrl]);
+  useEffect(() => () => { if (result) URL.revokeObjectURL(result); }, [result]);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -100,7 +104,7 @@ export default function RemoveBgPage() {
             afterLabel="Background Removed"
           />
 
-          {/* Transparent preview */}
+          {/* Transparent preview with checkerboard */}
           <div>
             <p className="text-sm font-medium text-gray-600 mb-2">Transparency preview:</p>
             <div className="checkerboard inline-block rounded-xl overflow-hidden">
@@ -122,7 +126,7 @@ export default function RemoveBgPage() {
           <div className="space-y-2">
             <p><strong>Is my image uploaded?</strong> No. The AI runs in your browser — your image never leaves your device.</p>
             <p><strong>Why does it take longer the first time?</strong> The AI model (~40MB) is downloaded once and cached in your browser. After that it is instant.</p>
-            <p><strong>What works best?</strong> Photos with clear subjects (people, products, animals) on distinct backgrounds. Complex scenes may need a second pass.</p>
+            <p><strong>What works best?</strong> Photos with clear subjects (people, products, animals) on distinct backgrounds.</p>
             <p><strong>What output format?</strong> PNG with transparent background.</p>
           </div>
         </div>

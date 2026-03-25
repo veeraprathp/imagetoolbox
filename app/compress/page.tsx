@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import imageCompression from 'browser-image-compression';
 import DropZone from '../../components/DropZone';
 import DownloadButton from '../../components/DownloadButton';
@@ -12,11 +12,15 @@ type OutputFormat = 'jpeg' | 'png' | 'webp';
 
 export default function CompressPage() {
   const { toast } = useToast();
-  const [original, setOriginal] = useState<{ file: File; url: string } | null>(null);
+  const [original, setOriginal]     = useState<{ file: File; url: string } | null>(null);
   const [compressed, setCompressed] = useState<{ url: string; size: number } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [quality, setQuality] = useState(0.8);
-  const [format, setFormat] = useState<OutputFormat>('jpeg');
+  const [loading, setLoading]       = useState(false);
+  const [quality, setQuality]       = useState(0.8);
+  const [format, setFormat]         = useState<OutputFormat>('jpeg');
+
+  // Revoke object URLs when they change to prevent memory leaks
+  useEffect(() => () => { if (original?.url) URL.revokeObjectURL(original.url); }, [original?.url]);
+  useEffect(() => () => { if (compressed?.url) URL.revokeObjectURL(compressed.url); }, [compressed?.url]);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -28,8 +32,7 @@ export default function CompressPage() {
       return;
     }
 
-    const originalUrl = URL.createObjectURL(file);
-    setOriginal({ file, url: originalUrl });
+    setOriginal({ file, url: URL.createObjectURL(file) });
     setCompressed(null);
     setLoading(true);
 
@@ -100,7 +103,7 @@ export default function CompressPage() {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <span className="font-medium">Compressing...</span>
+          <span className="font-medium">Compressing…</span>
         </div>
       )}
 
